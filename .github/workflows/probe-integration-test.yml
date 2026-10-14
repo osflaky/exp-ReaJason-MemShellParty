@@ -1,0 +1,47 @@
+name: Probe IntegrationTest
+
+on:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - cases:
+            middleware: "tomcat"
+            depend_tasks: ":vul:vul-webapp:war :vul:vul-webapp-expression:war :vul:vul-webapp-deserialize:war
+              :vul:vul-webapp-jakarta:war"
+          expander_leg: ubuntu-22.04--x64
+    runs-on: ubuntu-22.04
+    name: ${{ matrix.cases.middleware }} [${{ matrix.expander_leg }}]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Setup Java
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: 17
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v6
+
+    - name: Prepare for Integration Test
+      run: ./gradlew ${{ matrix.cases.depend_tasks }}
+
+    - name: Integration Test with gradle
+      run: ./gradlew :integration-test:test --tests '*.probe.${{ 
+        matrix.cases.middleware }}.*' --info
+
+    - name: Export Integration Test Summary
+      uses: mikepenz/action-junit-report@v6
+      if: success() || failure()
+      with:
+        report_paths: '**/build/test-results/test/TEST-*.xml'
+    timeout-minutes: 150
