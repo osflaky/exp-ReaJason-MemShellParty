@@ -1,0 +1,101 @@
+import type { MemShellFormSchema } from "@/types/schema";
+
+import { Shuffle } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
+import { Controller, type UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+
+export function OptionalClassFormField({
+  form,
+}: Readonly<{ form: UseFormReturn<MemShellFormSchema> }>) {
+  const { t } = useTranslation(["memshell", "common"]);
+  const initialShellClassName = form.getValues("shellClassName") ?? "";
+  const initialInjectorClassName = form.getValues("injectorClassName") ?? "";
+  const [useRandomClassName, setUseRandomClassName] = useState(
+    () => !(initialShellClassName?.trim() || initialInjectorClassName?.trim()),
+  );
+  const [savedShellClassName, setSavedShellClassName] = useState(initialShellClassName);
+  const [savedInjectorClassName, setSavedInjectorClassName] = useState(initialInjectorClassName);
+  const shellClassName = form.watch("shellClassName");
+  const injectorClassName = form.watch("injectorClassName");
+
+  useEffect(() => {
+    if (!useRandomClassName) {
+      setSavedShellClassName(shellClassName ?? "");
+    }
+  }, [shellClassName, useRandomClassName]);
+
+  useEffect(() => {
+    if (!useRandomClassName) {
+      setSavedInjectorClassName(injectorClassName ?? "");
+    }
+  }, [injectorClassName, useRandomClassName]);
+
+  useEffect(() => {
+    if (useRandomClassName && (shellClassName?.trim() || injectorClassName?.trim())) {
+      setUseRandomClassName(false);
+    }
+  }, [injectorClassName, shellClassName, useRandomClassName]);
+
+  const handleToggleRandomClass = (checked: boolean) => {
+    setUseRandomClassName(checked);
+    if (checked) {
+      setSavedShellClassName(form.getValues("shellClassName") ?? "");
+      setSavedInjectorClassName(form.getValues("injectorClassName") ?? "");
+      form.setValue("shellClassName", "");
+      form.setValue("injectorClassName", "");
+    } else {
+      form.setValue("shellClassName", savedShellClassName ?? "");
+      form.setValue("injectorClassName", savedInjectorClassName ?? "");
+    }
+  };
+
+  return (
+    <Fragment>
+      <div className="flex items-center justify-between gap-3 pt-2">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Shuffle className="h-4 w-4" />
+          <span>{t("mainConfig.randomClassName")}</span>
+        </div>
+        <Switch
+          id="randomClassName"
+          checked={useRandomClassName}
+          onCheckedChange={handleToggleRandomClass}
+        />
+      </div>
+
+      {!useRandomClassName && (
+        <Controller
+          control={form.control}
+          name="shellClassName"
+          render={({ field }) => (
+            <Field className="gap-1">
+              <FieldLabel htmlFor="shellClassName">
+                {t("mainConfig.shellClassName")} {t("common:optional")}
+              </FieldLabel>
+              <Input id="shellClassName" {...field} placeholder={t("common:placeholders.input")} />
+            </Field>
+          )}
+        />
+      )}
+      {!useRandomClassName && (
+        <Controller
+          control={form.control}
+          name="injectorClassName"
+          render={({ field }) => (
+            <Field className="gap-1">
+              <FieldLabel htmlFor="injectClassName">
+                {t("mainConfig.injectorClassName")} {t("common:optional")}
+              </FieldLabel>
+              <Input id="injectClassName" {...field} placeholder={t("common:placeholders.input")} />
+            </Field>
+          )}
+        />
+      )}
+    </Fragment>
+  );
+}

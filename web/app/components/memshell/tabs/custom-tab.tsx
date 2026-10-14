@@ -1,0 +1,154 @@
+import type { MemShellFormSchema } from "@/types/schema";
+
+import { useEffect, useRef, useState } from "react";
+import { Controller, type UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { TabsContent } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { env } from "@/config";
+
+import { OptionalClassFormField } from "./classname-field";
+import { ShellTypeFormField } from "./shelltype-field";
+
+export default function CustomTabContent({
+  form,
+  shellTypes,
+}: Readonly<{
+  form: UseFormReturn<MemShellFormSchema>;
+  shellTypes: Array<string>;
+}>) {
+  const [isFile, setIsFile] = useState(false);
+  const { t } = useTranslation(["memshell", "common"]);
+  const shellClassBase64 = form.watch("shellClassBase64");
+  const lastParsedBase64Ref = useRef<string | undefined>(undefined);
+  const classNameEndpoint = `${env.API_URL}/api/className`;
+
+  useEffect(() => {
+    if (!shellClassBase64) {
+      lastParsedBase64Ref.current = undefined as string | undefined;
+      return;
+    }
+
+    if (shellClassBase64 === lastParsedBase64Ref.current) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      const parseClassName = async () => {
+        try {
+          const response = await fetch(classNameEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+            },
+            body: shellClassBase64,
+            signal: controller.signal,
+          });
+
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
+
+          const className = await response.text();
+
+          if (!className) {
+            throw new Error("EMPTY_CLASS_NAME");
+          }
+
+          lastParsedBase64Ref.current = shellClassBase64;
+          form.setValue("shellClassName", className, {
+            shouldDirty: true,
+          });
+        } catch (error) {
+          if ((error as Error)?.name === "AbortError") {
+            return;
+          }
+
+          toast.error(t("memshell:tips.classNameParseFailed"));
+        }
+      };
+
+      void parseClassName();
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [classNameEndpoint, form, shellClassBase64, t]);
+
+  return (
+    <TabsContent value="Custom">
+      <Card>
+        <CardContent className="mt-4 space-y-2">
+          <ShellTypeFormField form={form} shellTypes={shellTypes} />
+          <Controller
+            control={form.control}
+            name="shellClassBase64"
+            render={({ field, fieldState }) => (
+              <Field className="gap-2">
+                <FieldLabel>{t("shellClass")}</FieldLabel>
+                <RadioGroup
+                  value={isFile ? "file" : "base64"}
+                  onValueChange={(value) => {
+                    field.onChange("");
+                    setIsFile(value === "file");
+                  }}
+                  className="flex items-center"
+                >
+                  <div className="flex items-center gap-1">
+                    <RadioGroupItem value="base64" id="optionOne" />
+                    <Label htmlFor="optionOne">Base64</Label>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <RadioGroupItem value="file" id="optionTwo" />
+                    <Label htmlFor="optionTwo">File</Label>
+                  </div>
+                </RadioGroup>
+                <div className="mt-2">
+                  {isFile ? (
+                    <div className="grid w-full max-w-sm items-center gap-3">
+                      <Input
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const base64String =
+                                (event.target?.result as string)?.split(",")[1] || "";
+                              field.onChange(base64String);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        accept=".class"
+                        placeholder={t("common:placeholders.input")}
+                        type="file"
+                      />
+                    </div>
+                  ) : (
+                    <Textarea
+                      {...field}
+                      placeholder={t("common:placeholders.input")}
+                      className="h-24"
+                    />
+                  )}
+                </div>
+                {fieldState.error && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <OptionalClassFormField form={form} />
+        </CardContent>
+      </Card>
+    </TabsContent>
+  );
+}

@@ -1,0 +1,11 @@
+services:
+  wildfly36:
+    image: quay.io/wildfly/wildfly:36.0.0.Final-jdk21
+    container_name: wildfly36
+    ports:
+      - 8080:8080
+      - 5005:5005
+    environment:
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    volumes:
+      - ../../../vul/vul-webapp-jakarta/build/libs/vul-webapp-jakarta.war:/opt/jboss/wildfly/standalone/deployments/app.war

@@ -1,0 +1,11 @@
+services:
+  resin2117:
+    image: reajason/resin:2.1.17-jdk6
+    container_name: resin2117
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    environment:
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    volumes:
+      - ../../../vul/vul-webapp-servlet2/build/libs/vul-webapp-servlet2.war:/usr/local/resin2/webapps/app.war

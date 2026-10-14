@@ -1,0 +1,56 @@
+package com.reajason.javaweb.integration;
+
+import lombok.extern.slf4j.Slf4j;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.MountableFile;
+
+import java.nio.file.Path;
+
+/**
+ * @author ReaJason
+ * @since 2024/12/5
+ */
+@Slf4j
+public class ContainerTool {
+    public static final MountableFile warJakartaFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-webapp-jakarta", "build", "libs", "vul-webapp-jakarta.war").toAbsolutePath());
+    public static final MountableFile warExpressionFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-webapp-expression", "build", "libs", "vul-webapp-expression.war").toAbsolutePath());
+    public static final MountableFile warDeserializeFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-webapp-deserialize", "build", "libs", "vul-webapp-deserialize.war").toAbsolutePath());
+    public static final MountableFile warFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-webapp", "build", "libs", "vul-webapp.war").toAbsolutePath(), 0666);
+    public static final MountableFile servlet2WarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-webapp-servlet2", "build", "libs", "vul-webapp-servlet2.war").toAbsolutePath(), 0666);
+    public static final MountableFile struts2WarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-struts2", "build", "libs", "vul-struts2.war").toAbsolutePath());
+    public static final MountableFile springBoot2WarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot2", "build", "libs", "vul-springboot2.war").toAbsolutePath());
+
+    public static final MountableFile springBoot1JarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot1", "build", "libs", "vul-springboot1.jar").toAbsolutePath());
+    public static final MountableFile springBoot2JarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot2", "build", "libs", "vul-springboot2.jar").toAbsolutePath());
+    public static final MountableFile springBoot2JettyJarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot2-jetty", "build", "libs", "vul-springboot2-jetty.jar").toAbsolutePath());
+    public static final MountableFile springBoot2UndertowJarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot2-undertow", "build", "libs", "vul-springboot2-undertow.jar").toAbsolutePath());
+    public static final MountableFile springBoot2WebfluxJarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot2-webflux", "build", "libs", "vul-springboot2-webflux.jar").toAbsolutePath());
+    public static final MountableFile springBoot3JarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot3", "build", "libs", "vul-springboot3.jar").toAbsolutePath());
+    public static final MountableFile springBoot359JarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot359", "build", "libs", "vul-springboot359.jar").toAbsolutePath());
+    public static final MountableFile springBoot3WebfluxJarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot3-webflux", "build", "libs", "vul-springboot3-webflux.jar").toAbsolutePath());
+    public static final MountableFile springBoot4JarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot4", "build", "libs", "vul-springboot4.jar").toAbsolutePath());
+    public static final MountableFile springBoot4WebfluxJarFile = MountableFile.forHostPath(Path.of("..", "vul", "vul-springboot4-webflux", "build", "libs", "vul-springboot4-webflux.jar").toAbsolutePath());
+
+    public static final Path neoGeorgDockerfile = Path.of("..", "assets", "neoreg", "Dockerfile").toAbsolutePath();
+
+    public static final MountableFile jattachFile = MountableFile.forHostPath(Path.of("..", "assets", "agent", "jattach-linux"));
+    public static final MountableFile tomcatPid = MountableFile.forHostPath(Path.of("script", "tomcat_pid.sh"));
+    public static final MountableFile tongweb8Pid = MountableFile.forHostPath(Path.of("script", "tongweb8_pid.sh"));
+    public static final MountableFile resinPid = MountableFile.forHostPath(Path.of("script", "resin_pid.sh"));
+    public static final MountableFile jbossPid = MountableFile.forHostPath(Path.of("script", "jboss_pid.sh"));
+    public static final MountableFile glassfishPid = MountableFile.forHostPath(Path.of("script", "glassfish_pid.sh"));
+    public static final MountableFile apusicPid = MountableFile.forHostPath(Path.of("script", "apusic_pid.sh"));
+    public static final MountableFile jettyPid = MountableFile.forHostPath(Path.of("script", "jetty_pid.sh"));
+    public static final MountableFile webspherePid = MountableFile.forHostPath(Path.of("script", "websphere_pid.sh"));
+    public static final MountableFile weblogicPid = MountableFile.forHostPath(Path.of("script", "weblogic_pid.sh"));
+    public static final MountableFile springbootPid = MountableFile.forHostPath(Path.of("script", "springboot_pid.sh"));
+    public static final MountableFile javaPid = MountableFile.forHostPath(Path.of("script", "java_pid.sh"));
+
+    public static String getUrl(GenericContainer<?> container) {
+        int port = container.getMappedPort(8080);
+        String host = container.getHost();
+        String url = "http://" + host + ":" + port + "/app";
+        log.info("container started, app url is : {}", url);
+        return url;
+    }
+}

@@ -1,0 +1,126 @@
+import type { APIErrorResponse, PackerConfig } from "@/types/memshell";
+import type { ProbeShellGenerateResponse, ProbeShellResult } from "@/types/probeshell";
+
+import { useQuery } from "@tanstack/react-query";
+import { HomeLayout } from "fumadocs-ui/layouts/home";
+import { LoaderCircle, WandSparklesIcon } from "lucide-react";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+
+import MainConfigCard from "@/components/probeshell/main-config-card";
+import PackageConfigCard from "@/components/probeshell/package-config-card";
+import ShellResult from "@/components/probeshell/shell-result";
+import { Button } from "@/components/ui/button";
+import { env } from "@/config";
+import { siteConfig } from "@/lib/config";
+import { baseOptions } from "@/lib/layout.shared";
+import {
+  type ProbeShellFormSchema,
+  probeShellFormSchema,
+  useYupValidationProbeResolver,
+} from "@/types/schema";
+import { transformToProbePostData } from "@/utils/transformer";
+
+export default function ProbeShellGenerator() {
+  const { data: responseBodyServers } = useQuery<string[]>({
+    queryKey: ["probeResponseBodyServers"],
+    queryFn: async () => {
+      const response = await fetch(`${env.API_URL}/api/config/probe/response-body/servers`);
+      return await response.json();
+    },
+  });
+
+  const { data: packerConfig } = useQuery<PackerConfig>({
+    queryKey: ["packerConfig"],
+    queryFn: async () => {
+      const response = await fetch(`${env.API_URL}/api/config/packers/tree`);
+      return await response.json();
+    },
+  });
+
+  const { t } = useTranslation(["common", "probeshell"]);
+
+  const form = useForm<ProbeShellFormSchema>({
+    resolver: useYupValidationProbeResolver(probeShellFormSchema, t),
+    defaultValues: {
+      probeMethod: "ResponseBody",
+      probeContent: "Command",
+      host: "",
+      server: "Tomcat",
+      reqParamName: "",
+      seconds: 5,
+      sleepServer: "Tomcat",
+      debug: false,
+      byPassJavaModule: false,
+      lambdaSuffix: false,
+      shrink: true,
+      staticInitialize: true,
+    },
+  });
+
+  const [packResult, setPackResult] = useState<string | undefined>();
+  const [generateResult, setGenerateResult] = useState<ProbeShellResult>();
+  const [packMethod, setPackMethod] = useState<string>("");
+  const submitLockRef = useRef(false);
+
+  const onSubmit = async (data: ProbeShellFormSchema) => {
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+
+    try {
+      const postData = transformToProbePostData(data);
+      const response = await fetch(`${env.API_URL}/api/probe/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        const json: APIErrorResponse = await response.json();
+        toast.error(t("toast.generateError", { error: json.error }));
+        return;
+      }
+
+      const result = (await response.json()) as ProbeShellGenerateResponse;
+      setGenerateResult(result.probeShellResult);
+      setPackResult(result.packResult);
+      setPackMethod(data.packingMethod);
+      toast.success(t("toast.generateSuccess"));
+    } catch (error) {
+      toast.error(t("toast.generateError", { error: (error as Error).message }));
+    } finally {
+      submitLockRef.current = false;
+    }
+  };
+  return (
+    <HomeLayout {...baseOptions()} links={siteConfig.navLinks}>
+      <div className="max-w-8xl container mx-auto p-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6 xl:flex-row">
+          <div className="flex w-full flex-col gap-2 xl:w-1/2">
+            <MainConfigCard form={form} responseBodyServers={responseBodyServers} />
+            <PackageConfigCard form={form} packerConfig={packerConfig} />
+            <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                <WandSparklesIcon />
+              )}
+              {t("probeshell:buttons.generate")}
+            </Button>
+          </div>
+          <div className="flex w-full flex-col gap-2 xl:w-1/2">
+            <ShellResult
+              packMethod={packMethod}
+              generateResult={generateResult}
+              packResult={packResult}
+            />
+          </div>
+        </form>
+      </div>
+    </HomeLayout>
+  );
+}

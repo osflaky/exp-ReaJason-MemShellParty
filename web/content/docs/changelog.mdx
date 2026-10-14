@@ -1,0 +1,606 @@
+---
+title: 更新日志
+icon: ScrollText
+---
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [v2.10.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.10.0) - 2026-08-30
+
+### Added
+
+1. (WEB)内存马/探测马支持查看 cfr 反编译源码（Thanks @4ra1n for [4ra1n/cfr-wasm](https://github.com/4ra1n/cfr-wasm)）
+2. 新增 FreeMarker SpEL/SpELJDK17 打包方式（Thanks @xcxmiku）
+3. 新增 XSLT 打包方式
+
+### Fixed
+
+1. 修复 BES 10/11 部分场景 context 找不到（#157 By @su18，#156 Thanks @mssky9527）
+2. 修复 TongWeb7 SpringBoot Embedded 下 Filter/Valve/Agent 马注入失败（Thanks @su18）
+3. 修复哥斯拉/命令执行 WebFilter/NettyHandler 多次长延迟请求阻塞耗尽请求线程导致业务中断（Thanks @xcxmiku）
+4. 修复 SpringBoot4 WebFlux WebFilter 注入失败
+5. 修复自定义内存马传入 Java5 包含低版本指令时生成失败
+
+### Changed
+
+1. 更新 fumadocs 版本和使用模式
+2. 依赖更新
+
+**Full Changelog:** [v2.9.0...v2.10.0](https://github.com/ReaJason/MemShellParty/compare/v2.9.0...v2.10.0)
+
+## [v2.9.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.9.0) - 2026-08-03
+
+### Added
+
+1. 支持 Resin2 和 Jetty5 内存马注入和回显（#137 By @ReaJason）
+2. 支持 XXL-JOB 2.2.0 以下版本注入 Netty 马（#151 Thanks @fasnow）
+3. 支持 WebLogic WebSocket 内存马注入
+4. 支持 GlassFish 7/8 JDK21、Payara 6/7 JDK21 内存注入和回显
+
+### Changed
+
+1. 优化 Suo5V2 通信（#152 By @zema1）
+2. 依赖更新
+
+**Full Changelog:** [v2.8.0...v2.9.0](https://github.com/ReaJason/MemShellParty/compare/v2.8.0...v2.9.0)
+
+## [v2.8.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.8.0) - 2026-06-13
+
+### Added
+
+1. 新增对 [Winstone-Jetty](https://github.com/jenkinsci/winstone)（Jenkins 2.491.1）和 [Geronimo-Jetty](https://github.com/apache/geronim)（Jetty 7.1） 上下文采集注入（Thanks @su18）
+2. 新增 Godzilla DubboService 内存马注入，默认使用 XOR_Base64（仅支持特战版，Thanks @ReaJason）
+3. (UI)支持选取具体的打包方式
+4. (UI)当选择 SpringGzipJDK17 的打包方式时自动将注入器类名为 org.springframework.expression. 开头的随机生成类名
+
+### Fixed
+
+1. 修复 Jetty 7.1.6 回显马找不到 request/response 导致回显失败
+
+### Changed
+
+1. boot 使用 SpringBoot 4.1.0 版本 + Dockerfile 中默认 jre21
+2. 依赖更新
+
+**Full Changelog:** [v2.7.2...v2.8.0](https://github.com/ReaJason/MemShellParty/compare/v2.7.2...v2.8.0)
+
+## [v2.7.2](https://github.com/ReaJason/MemShellParty/releases/tag/v2.7.2) - 2026-05-24
+
+### Fixed
+
+1. 修复 Web 回显马生成界面，调试模式、绕过模块限制等开关不可用（Thanks @xcxmiku）
+
+**Full Changelog:** [v2.7.1...v2.7.2](https://github.com/ReaJason/MemShellParty/compare/v2.7.1...v2.7.2)
+
+## [v2.7.1](https://github.com/ReaJason/MemShellParty/releases/tag/v2.7.1) - 2026-05-24
+
+### Fixed
+
+1. 修复 SpELSpringGzipJDK17 高版本 org.springframework.util.Base64Utils 类被删除导致无法使用
+2. 修复 TongWeb 7.0.4.9、BES 11.0.0 回显失效
+3. 修复命名错误 struct2 -> struts2
+
+### Changed
+
+1. 依赖更新、文档更新
+
+**Full Changelog:** [v2.7.0...v2.7.1](https://github.com/ReaJason/MemShellParty/compare/v2.7.0...v2.7.1)
+
+## [v2.7.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.7.0) - 2026-04-26
+
+### Added
+
+1. 添加 Alibaba Dubbo 和 Apache Dubbo Service 内存马，专门针对 Dubbo Provider 的场景（#32 By @ReaJason）
+2. 为 Attacher 添加默认列举 Java 进程和 `all` 参数注入所有 Java 进程的代码（与 JMG Agent.jar 命令一致）
+   ```bash
+   java -jar agent.jar # 列举所有 Java 进程
+   java -jar agent.jar <pid> # 注入指定 PID Java 进程
+   java -jar agent.jar all # 注入所有 Java 进程
+   ```
+3. 添加 Command Base64 Encryptor，方便测试 Base64 流量特征攻击
+
+### Fixed
+
+1. 修复测试用例 WAS7(IBM JDK6) 下需要添加 `-Xshareclasses:none` JVM 参数才能注入成功，否则报错 UnmodifiableClassException
+
+### Changed
+
+1. 添加 tomcat-embed-core 依赖，Spring Boot 4 应用依赖时能直接使用 Tomcat 容器进行部署（Spring Boot 4 不再支持 Undertow）
+2. 前端依赖更新，将格式化工具 biomejs 改为 oxc
+
+**Full Changelog:** [v2.6.1...v2.7.0](https://github.com/ReaJason/MemShellParty/compare/v2.6.1...v2.7.0)
+
+## [v2.6.1](https://github.com/ReaJason/MemShellParty/releases/tag/v2.6.1) - 2026-03-30
+
+### Fixed
+
+1. (UI)修复 SpringWebMVC 生成 Controller 点击生成按钮无效（#140 Thanks @ekkoo-z By @ReaJason）
+2. 修复 WebSocket Proxy OOM（#127 Thanks @xiaoxiaoranxxx）
+
+### Changed
+
+1. 依赖更新
+2. web docs 更新，支持复制 markdown 以及点击跳转 GitHub 等界面
+
+**Full Changelog:** [v2.6.0...v2.6.1](https://github.com/ReaJason/MemShellParty/compare/v2.6.0...v2.6.1)
+
+## [v2.6.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.6.0) - 2026-02-08
+
+### Added
+
+1. 为 ByteBuddyGenerator 添加 postProcessBytes 模板方法，支持生成后对 shell bytes 进行操作
+2. 支持 Resin 2.1.17 Agent 内存马的生成
+3. 同步更新 Suo5V2 v2.5.1 修复逻辑（#135 By @zema1）
+
+### Fixed
+
+1. (UI)修复生成按钮防连点失效（By @ReaJason）
+2. 修复 ServletRenameVisitorWrapper 可能会导致部分 ByteBuddy Advisor 方法选中失效
+3. 去除 JSP 脚本中 `Class<?>` 泛型，改为 `Class`，修复低版本 Servlet 容器解析失败
+
+### Changed
+
+1. Suo5V2 抽取 Loader 进行 Suo5V2 的核心代码加载，增加可维护性（#136）
+2. 依赖更新
+
+**Full Changelog:** [v2.5.0...v2.6.0](https://github.com/ReaJason/MemShellParty/compare/v2.5.0...v2.6.0)
+
+## [v2.5.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.5.0) - 2026-01-19
+
+### Added
+
+1. 添加 WebSocket BypassNginx 实现，使用方式见文档（By @ReaJason）
+2. 添加 WebSocket Proxy 实现，使用方式见文档（#126，Thanks @xiaoxiaoranxxx）
+3. 添加 JSP/JSPX Unicode 打包方式（#116 Thanks @Ch1ngg）
+4. (UI)添加目标 JRE 版本的选择，防止部分情况下无法使用 JDK8 API（#131 Thanks @LTP414）
+
+### Fixed
+
+1. 修复自定义内存马 Agent 型无法显式调用 Jakarta API（#131 Thanks @LTP414）
+2. (UI)修复自定义内存马文件上传框中文字不居中
+
+### Changed
+
+1. 调整哥斯拉 WebSocket 马使用 **AES_RAW** 同时支持 GitHub 插件和特战版都可连接，使用方式见文档
+2. 重构 MemShell 和 ProbeShell 集成测试用例，减少代码量
+3. 支持 Spring 相关集成测试用例调用远程 docker 完成测试（目前所有集成测试用例可支持在远程 docker 执行）[customizing-docker-host-detection](https://java.testcontainers.org/features/configuration/#customizing-docker-host-detection)
+4. 配置 Gradle 构建打包自动发布至 Maven Central(不需要额外去网页手动点 Publish)
+5. 重命名仓库中 asserts -> assets
+6. 依赖更新
+
+**Full Changelog:** [v2.4.2...v2.5.0](https://github.com/ReaJason/MemShellParty/compare/v2.4.2...v2.5.0)
+
+## [v2.4.2](https://github.com/ReaJason/MemShellParty/releases/tag/v2.4.2) - 2026-01-12
+
+### Added
+
+1. 新增对 WebSphere open-liberty 的内存马注入以及回显马（By @ReaJason）
+2. 支持 Filter 调序为第一个，解决部分鉴权 Filter 的连接干扰
+3. 新增回显马可回显 Filter 列表
+4. 添加 libs 子模块，存放部分中间件源码包方便进行代码编写和调试以及便于编写后续源码分析文档
+5. 目标服务文档填写适配表格，展示各版本该如何选取对应内存马挂载类型，https://dev-party.mem.mk/ui/docs/server-intro
+6. 添加文档 tree 结构，欢迎一起完善文档
+
+### Fixed
+
+1. 修复注入器上下文获取失败时不会正确打印 `context not found`
+2. 修复文档页直接点击子菜单时 502 无法正确显示
+3. 修复 web 前端项目无法在 Windows 环境正确编译（Thanks @kN6jq）
+4. 修复 Jetty 回显马，直接使用 Request 和 Callback 导致部分环境 ClassNotFound 问题（改用反射调用）
+
+### Changed
+
+1. 调整 testcontainer 获取 host 的处理，支持使用远程 docker 环境完成测试
+2. 简化 WebLogic context 获取代码，改为从 JMX 中获取
+3. 依赖更新
+
+**Full Changelog:** [v2.4.1...v2.4.2](https://github.com/ReaJason/MemShellParty/compare/v2.4.1...v2.4.2)
+
+## [v2.4.1](https://github.com/ReaJason/MemShellParty/releases/tag/v2.4.1) - 2025-12-16
+
+### Fixed
+
+1. 修复 Suo5v2、Godzilla、Command Listener 等无法中断请求的场景下未 close 响应流导致连接失败 (#120 By @ReaJason, @zema1 Thanks @whwlsfb)
+2. 修复非调试模式下，throwable.printStackTrace 未被正确移除
+3. 修复 responseBody 回显马如果业务优先触发 getOutputStream 或 getWriter 导致回显失败（#122 Thanks @localurk）
+4. 修复某软新版获取不到 context 导致 Tomcat 内存马无法注入的问题（Thanks @unam4）
+
+### Changed
+
+1. generator 模块去除 bcel 依赖，简化 jackson 依赖
+2. UI 添加 tooltip 简易描述方便使用，并优化部分布局细节
+3. UI 迁移 radix-ui 至 base-ui
+4. 文档更新、依赖更新
+
+**Full Changelog:** [v2.4.0...v2.4.1](https://github.com/ReaJason/MemShellParty/compare/v2.4.0...v2.4.1)
+
+## [v2.4.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.4.0) - 2025-12-10
+
+### Added
+
+1. 支持 Suo5 V2 版本内存马生成（[#118](https://github.com/ReaJason/MemShellParty/issues/118) By @ReaJason Thanks @zema1）
+2. 支持 Struts2 Action 内存马与回显马生成
+
+### Changed
+
+1. ui 探测马生成去除 jar 相关打包方式
+
+**Full Changelog:** [v2.3.0...v2.4.0](https://github.com/ReaJason/MemShellParty/compare/v2.3.0...v2.4.0)
+
+## [v2.3.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.3.0) - 2025-12-08
+
+### Added
+
+1. 支持 Jetty Handler 与 Customizer 内存马生成（By @ReaJason）
+2. 支持 Jetty ee8~ee11 的回显马（无法从 post urlencoded 中获取 parameter，请从 url queryParam 或 header 传入参数）
+3. **内存马生成支持回显模式对接回显马**
+4. 支持 Tomcat Upgrade 内存马注入（仅 Tomcat8+ 可用）
+5. 支持添加 lambda 类名后缀开关（[#97](https://github.com/ReaJason/MemShellParty/issues/97)）
+6. 命令执行内存马与回显马支持自定义命令模板（[#115](https://github.com/ReaJason/MemShellParty/issues/115) Thanks [@ViCrack](https://github.com/ViCrack)）
+7. 添加 ScriptEngine 绕过 Java 模块限制生成以及支持 H2URLPacker(方便生成 metabase 漏洞测试 payload)
+8. web 模块添加 [fumadocs](https://fumadocs.dev/) 框架，支持文档编写
+9. 回显马运行字节码时支持 base64 和 gzipBase64 字节码传入
+10. 支持 GroovyTransformJar 打包方式（fastjson 漏洞注入 [#112](https://github.com/ReaJason/MemShellParty/issues/112) Thanks [@DongHuangT1](https://github.com/DongHuangT1)）
+11. 回显马参数名称支持默认随机生成
+
+### Changed
+
+1. 由于 jetty handler 依赖的类干扰，boot 容器从 jetty 改为 undertow
+2. 注入器和回显马添加 ok 标识仅运行一次，降低代码运行时间
+3. boot 接口添加 /api 前缀，web 添加 /ui 前缀
+
+**Full Changelog:** [v2.2.0...v2.3.0](https://github.com/ReaJason/MemShellParty/compare/v2.2.0...v2.3.0)
+
+## [v2.2.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.2.0) - 2025-11-20
+
+### Added
+
+1. 内存马注入器支持接入回显 toString 打印 contextPath 等注入成功或错误信息（By @ReaJason）
+2. boot 新增通过字节码 base64 获取类名接口，并支持自定义内存马使用随机类名或原始类名
+3. 适配 Apusic 9.0.1 版本（金蝶 EAS Cloud）
+4. UI 在 JSP/Base64/序列化相关 payload 生成时添加下载按钮便于下载 JSP 文件/注入器 Class 文件/原始序列化文件
+5. 支持注入器或回显马添加静态代码块执行构造方法调用，解决部分场景下无法手动调用构造方法
+6. 支持 SpringWebMVC 回显马生成（#107）
+7. 添加 Jetty 12 中 ee11 的内存马注入支持和靶场测试用例
+8. 支持 ScriptEngineJar 打包方式（SnakeYaml 漏洞注入，#109）
+9. 支持 AbstractTranslet 打包方式，方便 TemplatesImpl 反序列化漏洞注入
+10. 支持脚本引擎执行回显马生成，方便调试
+
+### Fixed
+
+1. 修复自定义内存马生成报错（#102、#106，Thanks @love71 and @m0s30）
+2. 修复 Tomcat Valve 仅单个情况下注入 ProxyValve 导致站挂掉（#105 Thanks @love71）
+3. 默认哥斯拉内存马去除对 session 的依赖，解决部分场景下 session 为 null 导致无法连接
+
+### Changed
+
+1. 命令执行内存马和命令执行回显马支持从参数或请求头中获取命令参数
+2. 调整靶场构建使用的 openjdk 改为 eclipse-temurin
+3. 依赖更新
+
+**Full Changelog:** [v2.1.0...v2.2.0](https://github.com/ReaJason/MemShellParty/compare/v2.1.0...v2.2.0)
+
+## [v2.1.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.1.0) - 2025-08-12
+
+### Added
+
+1. 添加 BigInteger、ScriptEngineBigInteger 打包方式（#86 by @wanswu）
+2. 添加 SpELSpringGzipJDK17 打包方式（#83 by @xcxmiku and @ReaJason）
+3. 添加 JXPathSpringGzipPacker、JXPathSpringGzipPackerJDK17 打包方式（GeoServer 漏洞注入）
+4. 添加 Base64URLEncoded 打包方式（配合回显马进行小马拉大马测试）
+5. 支持回显马在进行自定义字节码执行时去除 Java 魔数流量特征
+
+```http
+/path/code?payload=yv66vgAAADIBVQEAJ29yZy9hcGFj...
+```
+
+改为只需要如下方式
+
+```http
+/path/code?payload=IBVQEAJ29yZy9hcGFj...
+```
+
+### Fixed
+
+1. 修复非调试模式下，构造方法中的 e.printStackTrace() 并没有被移除
+2. 修复使用 Dockerfile 进行自定义构建时，自定义路由无法正常工作
+3. 修复探测内存马中 Sleep 和 DNSLog 自定义类名失效（#89 Thanks @yinsel）
+4. 修复自定义内存马中，不会自动调用 listener 添加 getResponseFromRequest 实现代码和 valve 修改包名的逻辑（使用自定义内存马请参考：[如何使用自定义内存马功能](/docs/WriteCustomShell.md) 进行实现，否则会出现不可用的问题）
+5. 修复使用 SDK 时，Agent Packer 在 jar-with-dependencies(fatjar) 中会出现打包整个 jar 的问题
+6. 修复 Tomcat Listener 注入会使之前所有 Listener 失效（#93）
+
+### Changed
+
+1. 修改 Packer 中对于 Thread.currentThread().getContextClassLoader() 的纯依赖改为新建 URLClassLoader，使得回显马可多次执行
+2. 去除 logback（java11）和 okhttp 无用依赖，解决使用 SDK 打包部分场景会出现类版本不支持的问题
+3. 实现 Lombok SuperBuilder 自定义 Builder 简化配置类的创建代码（#9f8f3baa）
+4. 优化命令执行内存马，改为和回显马逻辑一致，使用 ProcessBuilder.redirectErrorStream 简化流读取
+5. 修改 packer 中脚本存放添加 memshell-party 一级，防止打包成 fatjar 时文件全在根目录，可能会被覆盖导致功能破坏
+6. 优化资源读取，通过工具类 loadTemplateFromResource 统一实现
+7. 优化 Agent Attacher JDK11 异常处理
+8. 依赖更新
+
+**Full Changelog:** [v2.0.0...v2.1.0](https://github.com/ReaJason/MemShellParty/compare/v2.0.0...v2.1.0)
+
+## [v2.0.0](https://github.com/ReaJason/MemShellParty/releases/tag/v2.0.0) - 2025-08-13
+
+> [!WARNING]  
+> 为了区分内存马和探测马，部分类名和接口做了调整，如果使用了 SDK，需要参考：[examples/memshell-party-maven-example](https://github.com/ReaJason/MemShellParty/tree/master/examples/memshell-party-maven-example) 进行调整。
+
+### Added
+
+- **支持探测马生成** (#71 by @ReaJason，部分代码参考 jeg 与 java-chains)
+- Web 添加关于页面
+- 支持 H2 JDBC 打包方式（DataEase 漏洞注入）
+- 支持 XMLDecoder 打包方式（WebLogic 漏洞注入）
+- 支持 OGNL SpringUtils 打包方式（Confluence 漏洞注入）
+
+### Fixed
+
+- 修复 SpringWebMVC Agent 无法点击生成按钮 (#77)
+- 修复 Spring Boot 对于 no static resource 老是抛出错误日志
+- 修复 TongWeb8 context 获取错误导致注入失败的问题
+
+### Changed
+
+- **简化 Server 类型选择，例如 JBossEAP7 和 WildFly 选择 Undertow** (#74 by @zema1)
+- **去除注入器中静态代码块调用构造方法，减少注入动作的触发**（可能会导致部分 `Class.forName("name", true, loader)` 的场景注入失败，后续会添加字节码 Web 工具进行这块的处理）
+- 简化 Tomcat AgentInjector 的代码
+- 前端 module 分包减少单个 js 体积，加快首次加载速度
+- 移除 memshell-party-bom 模块，改用 gradle/libs.versions.toml，参考：[Use Version Catalogs to Centralize Dependency Versions](https://docs.gradle.org/current/userguide/best_practices_dependencies.html#use_version_catalogs)
+- 使用 build-logic 替代 buildSrc，加快构建速度，参考：[Favor build-logic Composite Builds for Build Logic](https://docs.gradle.org/current/userguide/best_practices_general.html#favor_composite_builds)
+- 从 generator 模块中分离 payload 生成代码并合并 deserialize 模块为 packer 模块
+- 使用 i18 扁平化 key，并使用 namespace 区分 MemShell 和 ProbeShell 的字段，参考：[RSSNext/Folo/zh-CN.json](https://github.com/RSSNext/Folo/blob/dev/locales/common/zh-CN.json)
+- 升级 gradle-maven-publish-plugin 插件版本，简化打包指令
+- 统一生成内存马类过程中抛出异常为 GenerationException，并单独设置 GlobalExceptionHandler
+
+**Full Changelog:** [v1.10.0...v2.0.0](https://github.com/ReaJason/MemShellParty/compare/v1.10.0...v2.0.0)
+
+## [v1.10.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.10.0) - 2025-06-07
+
+### Added
+
+- 添加新的 JSP 打包方式（直接使用 defineClass 进行注入）(by @zema1 #67)
+- 支持 Tomcat 和 JBossAS ProxyValve 内存马（通过动态代理将 StandardPipeline 的第一个 valve 进行包装注入自定义逻辑）
+
+### Fixed
+
+- 修复哥斯拉无法使用最新版连接
+- 修复 TongWeb8 Valve 未适配
+- 修复移动端 UI 输入框 placeholder 字体过大
+- 修复移动端 UI 类名复制按钮超出卡片范围
+
+### Changed
+
+- 修改 Valve 和 Listener 字节码修改时机，改为生成时再进行修改，方便自定义内存马生成
+- 合并 memshell 与 memshell-jdk8 模块，方便维护
+- UI 使用新的 shadcn/ui 提供的 Zinc 主题配置
+- 将所有 Shell 捕获异常从 Exception 改为 Throwable
+- 简化 Shell base64 方法代码
+- Gradle 更新至 8.14.2
+- 参考 [General Gradle Best Practices](https://docs.gradle.org/current/userguide/best_practices_general.html)，将构建脚本改为
+  Kotlin DSL
+
+**Full Changelog:** [v1.9.0...v1.10.0](https://github.com/ReaJason/MemShellParty/compare/v1.9.0...v1.10.0)
+
+## [v1.9.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.9.0) - 2025-05-28
+
+### Added
+
+- 支持 TongWeb8 内存马生成 by @ReaJason
+- 通过 context 获取 webAppClassLoader，不再依赖 Thread.currentThread().getContextClassLoader()
+  为请求线程，参考：[任意类加载环境下注入内存马](https://reajason.eu.org/writing/whichclassloaderforshell/)
+- 全面支持使用 ASM 生成 Agent（仅需 92.5 KB），并且可选 JDKAttacher 与 JREAttacher
+- 支持命令执行自定义实现类，RuntimeExec or ForkAndExec
+
+### Fixed
+
+- 修复 Apusic Listener 由于 response 获取错误导致不可用
+- 修复 Jakarta WebSocket 无法注入
+
+### Changed
+
+- Godzilla WebSocket 默认使用 AES_BASE64 加密器，支持使用 [GzWebsocket](https://github.com/xsshim/GzWebsocket) 插件进行连接。
+- Gradle、Web 项目依赖更新
+- UI 生成界面默认勾选缩小字节码
+- UI 优化手机端选项布局，单行显示每个输入框
+- UI 使用紧凑模式，隐藏非常用字段简化操作路径
+- 提取公共 Tailwind CSS 类名，简化表单组件代码
+- yup 替代 zod 减少打包体积，并将自定义表单验证融合到 react-hook-form 中优化 UX
+- 重构 Shell Generator 代码
+
+**Full Changelog:** [v1.8.0...v1.9.0](https://github.com/ReaJason/MemShellParty/compare/v1.8.0...v1.9.0)
+
+## [v1.8.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.8.0) - 2025-05-14
+
+### Added
+
+- 支持普元中间件内存马生成（only 6.5 版本）by @ReaJason（#60）
+- 支持哥斯拉 WebSocket 内存马生成与测试
+- 添加 Groovy 通用恶意类加载打包方式（用于测试 Jenkins 脚本执行）
+- 命令执行支持加密器，双 Base64 测试绕过 WAF 安全设备
+
+### Fixed
+
+- 修复 Jetty 高版本中 ee8 ~ ee10 无法注入（#61）
+- 修复 Spring Boot 下类加载的原因导致的 Tomcat/Jetty/Undertow 部分内存马注入失败
+
+### Changed
+
+- 命令执行改为反射调用 forkAndExec 以绕过 RASP（JDK7+）
+- 获取所有线程代码改为 `Thread.getAllStackTraces().keySet()`，高版本 JDK 不再需要 bypass module
+- 优化 boot 在启动时即触发 Server 的内存马生成注册，加速第一次请求访问
+
+**Full Changelog:** [v1.7.0...v1.8.0](https://github.com/ReaJason/MemShellParty/compare/v1.7.0...v1.8.0)
+
+## [v1.7.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.7.0) - 2025-04-06
+
+### Added
+
+- 支持发布到 MavenCentral，可通过引入依赖使用生成 API by @ReaJason（#41）
+- 支持 CC3、CC4 反序列化 payload 打包方式
+- 支持随机参数生成与默认选项（#50）
+
+### Changed
+
+- 去除代码混淆相关代码
+- 为了更好地在 MavenCentral 展示，重命名部分模块
+- 使用 Jackson 代替 Fastjson 降低 boot 打包体积
+- 移除 commons-codec 降低 boot 打包体积
+- 升级 shadcn/ui 所有 component 代码
+
+**Full Changelog:** [v1.6.0...v1.7.0](https://github.com/ReaJason/MemShellParty/compare/v1.6.0...v1.7.0)
+
+## [v1.6.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.6.0) - 2025-03-30
+
+> 做代码生成以及代码混淆真是一件需要耐心的事情
+
+### Added
+
+- 支持自定义内存马生成 by @ReaJason（#49）
+- 支持命令回显 ASM Agent 内存马 by @ReaJason（#51）
+- 支持简易的代码混淆 by @ReaJason（#13）
+- 支持自动发布 DEV 分支代码 CD
+
+### Changed
+
+- 简化 Jetty 获取 Context 代码
+- 优化 Dockerfile 减小镜像体积
+
+**Full Changelog:** [v1.5.0...v1.6.0](https://github.com/ReaJason/MemShellParty/compare/v1.5.0...v1.6.0)
+
+## [v1.5.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.5.0) - 2025-03-01
+
+### Added
+
+- 支持 NeoreGeorg 内存马生成 by @ReaJason
+- 支持 UI 显示更新按钮跳转到 GitHub Release 界面
+
+### Changed
+
+- 简化 Valve 内存马代码
+- 升级 Gradle 8.13
+
+**Full Changelog:** [v1.4.0...v1.5.0](https://github.com/ReaJason/MemShellParty/compare/v1.4.0...v1.5.0)
+
+## [v1.4.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.4.0) - 2025-02-26
+
+### Added
+
+- 支持缩小字节码 (移除调试信息) by @ReaJason
+- 支持 Tomcat Jakarta WebSocket
+
+### Fixed
+
+- 修复自定义注入器类名不起作用
+
+### Changed
+
+- 优化跨平台开发体验，将 bash 脚本改为 js 脚本
+
+**Full Changelog:** [v1.3.2...v1.4.0](https://github.com/ReaJason/MemShellParty/compare/v1.3.2...v1.4.0)
+
+## [v1.3.2](https://github.com/ReaJason/MemShellParty/releases/tag/v1.3.2) - 2025-02-25
+
+### Fixed
+
+- 修复 Tomcat WebSocket 注入报错，无法工作
+
+### Changed
+
+- 添加 foojay-toolchains 插件，支持 Dockerfile 构建时自动下载缺失的 JDK 版本
+- 优化构建 Spring Boot 的 Dockerfile，最小权限原则
+- 支持一键构建的 Dockerfile，适配需要 NGINX 反代的场景
+- 代码重构支持一处注册所有 Server 的 Shell 配置
+
+**Full Changelog:** [v1.3.1...v1.3.2](https://github.com/ReaJason/MemShellParty/compare/v1.3.1...v1.3.2)
+
+## [v1.3.1](https://github.com/ReaJason/MemShellParty/releases/tag/v1.3.1) - 2025-02-20
+
+### Added
+
+- UI 中打包配置中添加 Loading 状态
+
+### Fixed
+
+- 修复 UI 在修改目标服务时，挂载类型有时未跟着变化导致生成失败
+
+**Full Changelog:** [v1.3.0...v1.3.1](https://github.com/ReaJason/MemShellParty/compare/v1.3.0...v1.3.1)
+
+## [v1.3.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.3.0) - 2025-02-20
+
+### Added
+
+- 支持 Hessian、Hessian2 反序列化，XSLT 链 (#36) by @ReaJason
+
+### Changed
+
+- 移除无用依赖，JavaSocket，Gson
+- Gradle 升级至 8.12.1
+- 更新 TestContainers 和 Junit 的版本
+
+### Fixed
+
+- 修复 UI 在仅修改打包方式重新生成时，多选 payload 下拉框置空，且 payload 没有变为最新的。
+
+**Full Changelog:** [v1.2.1...v1.3.0](https://github.com/ReaJason/MemShellParty/compare/v1.2.1...v1.3.0)
+
+## [v1.2.1](https://github.com/ReaJason/MemShellParty/releases/tag/v1.2.1) - 2025-02-19
+
+### Changed
+
+- UI 增强手机端响应式，增强 i18n 显示 (#39)
+
+### Fixed
+
+- 修复 CB110 版本 serialVersionUID 修改失效导致无法利用成功
+
+**Full Changelog:** [v1.2.0...v1.2.1](https://github.com/ReaJason/MemShellParty/compare/v1.2.0...v1.2.1)
+
+## [v1.2.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.2.0) - 2025-02-19
+
+### Added
+
+- 支持 AntSword 内存马生成 by @ReaJason
+- 添加 Java 反序列化其他 CB 版本 Payload 生成
+
+### Changed
+
+- CI 分离单独测试 was7 集成测试，大幅度减少测试时间
+- 部分 UI 调整
+
+### Fixed
+
+- 修复随机类名如果为保留字时会无法加载
+
+**Full Changelog:** [v1.1.0...v1.2.0](https://github.com/ReaJason/MemShellParty/compare/v1.1.0...v1.2.0)
+
+## [v1.1.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.1.0) - 2025-02-15
+
+### Added
+
+- 支持 Suo5 内存马生成 by @ReaJason
+
+### Changed
+
+- 升级 TailWind CSS v4
+- 分离 i18n EN 和 ZH 为两个 json 文件，方便维护以及 VSCode 插件识别
+
+### Fixed
+
+- 修复 sonner 颜色主题未随着修改而变化
+- 修复 IDEA 本地构建 version 一直是 unspecified
+
+**Full Changelog:** [v1.0.0...v1.1.0](https://github.com/ReaJason/MemShellParty/compare/v1.0.0...v1.1.0)
+
+## [v1.0.0](https://github.com/ReaJason/MemShellParty/releases/tag/v1.0.0) - 2025-01-03
+
+### Added
+
+- 支持 Tomcat、Jetty、WebLogic、GlassFish、JBoss、Resin 等 18 个中间件或框架的应用内存马
+- 支持 Filter、Servlet、Listener、NettyHandler、Agent 等常见内存马挂载类型
+- 支持哥斯拉、冰蝎、命令执行功能
+- 支持 Base64、Jar、JSP、常见表达式、常见模板引擎、反序列化等打包方式

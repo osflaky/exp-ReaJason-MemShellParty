@@ -1,0 +1,373 @@
+---
+title: 目标服务
+icon: Server
+---
+
+以下服务仅我个人遇到的一些场景，与实际攻防场景可能仍有差距，但是在 MemShellParty
+中可用于参考进行内存马生成。个别其他服务还请自行辨别其服务类型。如果有其他环境补充，欢迎 PR 交流学习~
+
+## Tomcat
+
+> 官网：https://tomcat.apache.org/
+
+> 版本适配：https://tomcat.apache.org/whichversion.html
+
+> Tomcat 3+ 下载网址：https://archive.apache.org/dist/tomcat
+
+Tomcat 使用的是自己 Catalina 模块提供的 Servlets 实现，限制较少，在 MemShellParty 中，服务类型选 Tomcat 即可生成 Tomcat
+内存马。
+
+一般而言，SpringWebMVC 项目大多使用 Tomcat 提供 Servlets 容器功能，比如 Nacos，这种情况下可以选择 Tomcat 内存马注入。其他服务中，致远 OA、Confluence、帆软也是使用 Tomcat。
+
+- Spring Boot 1.x 如果使用默认的 spring-boot-starter-web 1.x 依赖，则使用的 spring-boot-starter-tomcat 1.x 中 Tomcat 版本为 Tomcat 8.x。
+- Spring Boot 2.x 如果使用默认的 spring-boot-starter-web 2.x 依赖，则使用的 spring-boot-starter-tomcat 2.x 中 Tomcat 版本为 Tomcat 9.x。
+- Spring Boot 3.x 如果使用默认的 spring-boot-starter-web 3.x 依赖，则使用的 spring-boot-starter-tomcat 3.x 中 Tomcat 版本为 Tomcat 10.x。
+
+<div className="tomcat-version-table">
+<figure>
+
+| Version         | Servlet | JakartaServlet | Filter | JakartaFilter | Listener | JakartaListener | Valve | JakartaValve | ProxyValve | JakartaProxyValve | WebSocket | JakartaWebSocket | Upgrade | AgentFilterChain | AgentContextValve |
+| --------------- | :-----: | :------------: | :----: | :-----------: | :------: | :-------------: | :---: | :----------: | :--------: | :---------------: | :-------: | :--------------: | :-----: | :--------------: | :---------------: |
+| Tomcat 5.x      |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |           |                  |         |        ✔️        |        ✔️         |
+| Tomcat 6.x      |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |           |                  |         |        ✔️        |        ✔️         |
+| Tomcat 7.x      |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |    ✔️     |                  |         |        ✔️        |        ✔️         |
+| Tomcat 8.x      |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |    ✔️     |                  |   ✔️    |        ✔️        |        ✔️         |
+| Tomcat 9.x      |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |    ✔️     |                  |   ✔️    |        ✔️        |        ✔️         |
+| Tomcat 10.x     |         |       ✔️       |        |      ✔️       |          |       ✔️        |       |      ✔️      |            |        ✔️         |           |        ✔️        |   ✔️    |        ✔️        |        ✔️         |
+| Tomcat 11.x     |         |       ✔️       |        |      ✔️       |          |       ✔️        |       |      ✔️      |            |        ✔️         |           |        ✔️        |   ✔️    |        ✔️        |        ✔️         |
+| Spring Boot 1.x |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |    ✔️     |                  |   ✔️    |        ✔️        |        ✔️         |
+| Spring Boot 2.x |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |    ✔️     |                  |   ✔️    |        ✔️        |        ✔️         |
+| Spring Boot 3.x |         |       ✔️       |        |      ✔️       |          |       ✔️        |       |      ✔️      |            |        ✔️         |           |        ✔️        |   ✔️    |        ✔️        |        ✔️         |
+| BES 9.5.1       |   ✔️    |                |   ✔️   |               |    ✔️    |                 |  ✔️   |              |     ✔️     |                   |    ✔️     |                  |         |        ✔️        |        ✔️         |
+
+<figcaption align="center">表 1：Tomcat 各版本内存马挂载类型参考表</figcaption>
+</figure>
+</div>
+
+<style>{`
+  .tomcat-version-table table th:first-child,
+  .tomcat-version-table table td:first-child {
+    min-width: 150px;
+  }
+`}</style>
+
+## Jetty
+
+> 官网：https://jetty.org/
+
+Jetty6 版本使用的包名为 `org.mortbay.jetty`，而 7 以上使用的是 `org.eclipse.jetty`，在测试最新的 Jenkins 时，发现 Jetty12
+版本支持 ee8 ~ ee11 的环境，包名对应的是 `org.eclipse.jetty.ee8`，这些在 MemShellParty 中均已支持，因此服务类型选 Jetty
+即可生成 Jetty 内存马。在 SpringWebMVC 项目中也是有可能使用的。
+
+- Spring Boot 1.x/2.x 如果使用的 spring-boot-starter-jetty 1.x/2.x 中 Jetty 版本为 Jetty 9.x。
+- Spring Boot 3.0.x/3.1.x 如果使用的 spring-boot-starter-jetty 3.0.x/3.1.x 中 Jetty 版本为 Jetty 11.x。
+- Spring Boot 3.2.x+ 如果使用的 spring-boot-starter-jetty 3.2.x 中 Tomcat 版本为 Jetty 12.x ee10。
+
+<div className="jetty-version-table">
+<figure>
+
+| Version                 | Servlet | JakartaServlet | Filter | JakartaFilter | Listener | JakartaListener | Handler | JakartaHandler | Customizer | AgentHandler |
+| ----------------------- | :-----: | :------------: | :----: | :-----------: | :------: | :-------------: | :-----: | :------------: | :--------: | :----------: |
+| Jetty 6.x               |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |            |      ✔️      |
+| Jetty 7.x               |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |            |      ✔️      |
+| Jetty 8.x               |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |            |      ✔️      |
+| Jetty 9.x               |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |     ✔️     |      ✔️      |
+| Jetty 10.x              |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |     ✔️     |      ✔️      |
+| Jetty 11.x              |         |       ✔️       |        |      ✔️       |          |       ✔️        |         |       ✔️       |     ✔️     |      ✔️      |
+| Jetty 12.x ee8          |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |            |      ✔️      |
+| Jetty 12.x ee9~ee11     |         |       ✔️       |        |      ✔️       |          |       ✔️        |         |       ✔️       |            |      ✔️      |
+| Spring Boot 1.x/2.x     |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |     ✔️     |      ✔️      |
+| Spring Boot 3.0.x/3.1.x |   ✔️    |                |   ✔️   |               |    ✔️    |                 |   ✔️    |                |     ✔️     |      ✔️      |
+| Spring Boot 3.2.x+      |         |       ✔️       |        |      ✔️       |          |       ✔️        |         |       ✔️       |            |      ✔️      |
+
+<figcaption align="center">表 2：Jetty 各版本内存马挂载类型参考表</figcaption>
+</figure>
+</div>
+
+<style>{`
+  .jetty-version-table table th:first-child,
+  .jetty-version-table table td:first-child {
+    min-width: 180px;
+  }
+`}</style>
+
+## JBoss
+
+> JBossAS: https://jbossas.jboss.org/downloads
+
+> JBossEAP: https://developers.redhat.com/products/eap/download
+
+JBoss 分为 JBossAS 和 JBossEAP，JBossAS 全版本和 JBossEAP6 使用的 Catalina 模块提供的 Servlets 实现，JBossEAP7/JBossEAP8 的
+[Undertow](#undertow) 提供的 Servlets 实现。
+
+因此 JBossAS 4~7 以及 JBossEAP6 服务类型选择 JBoss 进行内存马的生成，而 JBossEAP7/JBossEAP8 需要选择
+[Undertow](#undertow) 进行内存马的生成。
+
+<div className="jboss-version-table">
+<figure>
+
+| Version            | Filter | Listener | Valve | ProxyValve | AgentFilterChain | AgentContextValve |
+| ------------------ | :----: | :------: | :---: | :--------: | :--------------: | :---------------: |
+| JBoss 4.x          |   ✔️   |    ✔️    |  ✔️   |     ✔️     |        ✔️        |        ✔️         |
+| JBoss AS 5.x ~ 7.x |   ✔️   |    ✔️    |  ✔️   |     ✔️     |        ✔️        |        ✔️         |
+| JBoss EAP 6.x      |   ✔️   |    ✔️    |  ✔️   |     ✔️     |        ✔️        |        ✔️         |
+
+<figcaption align="center">表 3：JBoss 各版本内存马挂载类型参考表</figcaption>
+</figure>
+</div>
+
+<style>{`
+  .jboss-version-table table th:first-child,
+  .jboss-version-table table td:first-child {
+    min-width: 100px;
+  }
+`}</style>
+
+## Wildfly
+
+> 官网：https://www.wildfly.org/
+
+Wildfly 使用的 [Undertow](#undertow) 提供的 Servlets 实现，因此服务类型选择 [Undertow](#undertow) 生成内存马。
+
+## Undertow
+
+> 官网：https://undertow.io/
+
+Undertow 是 JBoss 社区开发的高性能 Java Web 服务器，Wildfly 以及 JBossEAP7/8 使用的均是 Undertow 提供的 Servlets 实现，因此服务类型选择 Undertow 进行内存马的生成。
+
+<div className="undertow-version-table">
+<figure>
+
+| Version              | Servlet | JakartaServlet | Filter | JakartaFilter | Listener | JakartaListener | AgentServletHandler |
+| -------------------- | :-----: | :------------: | :----: | :-----------: | :------: | :-------------: | :-----------------: |
+| Undertow 1.x ~ 2.2.x |   ✔️    |                |   ✔️   |               |    ✔️    |                 |         ✔️          |
+| Undertow 2.3.x+      |         |       ✔️       |        |      ✔️       |          |       ✔️        |         ✔️          |
+| JBoss EAP 7.x        |   ✔️    |                |   ✔️   |               |    ✔️    |                 |         ✔️          |
+| JBoss EAP 8.x        |         |       ✔️       |        |      ✔️       |          |       ✔️        |         ✔️          |
+| WildFly 9.x ~ 26.x   |   ✔️    |                |   ✔️   |               |    ✔️    |                 |         ✔️          |
+| WildFly 27.x+        |         |       ✔️       |        |      ✔️       |          |       ✔️        |         ✔️          |
+
+<figcaption align="center">表 4：Undertow 各版本内存马挂载类型参考表</figcaption>
+</figure>
+</div>
+
+<style>{`
+  .undertow-version-table table th:first-child,
+  .undertow-version-table table td:first-child {
+    min-width: 160px;
+  }
+`}</style>
+
+## GlassFish
+
+> 官网：https://glassfish.org/
+
+GlassFish 使用的是 Catalina 提供的 Servlets 实现，但是使用了 OSGI 类加载模式，因此类限制较为严重，Apusic V10 和 Primeton V6.5 基于 GlassFish 进行二开，在 MemShellParty 中，服务类型选择
+GlassFish 进行内存马的生成。
+
+<div className="glassfish-version-table">
+<figure>
+
+| Version             | Filter | JakartaFilter | Listener | JakartaListener | Valve | JakartaValve | AgentFilterChain | AgentContextValve |
+| ------------------- | :----: | :-----------: | :------: | :-------------: | :---: | :----------: | :--------------: | :---------------: |
+| GlassFish 4.x ~ 5.x |   ✔️   |               |    ✔️    |                 |  ✔️   |              |        ✔️        |        ✔️         |
+| GlassFish 6.x+      |        |      ✔️       |          |       ✔️        |       |      ✔️      |        ✔️        |        ✔️         |
+| Payara 5.x+         |   ✔️   |               |    ✔️    |                 |  ✔️   |              |        ✔️        |        ✔️         |
+| Payara 6.x+         |        |      ✔️       |          |       ✔️        |       |      ✔️      |        ✔️        |        ✔️         |
+| Apusic V10          |   ✔️   |               |    ✔️    |                 |  ✔️   |              |        ✔️        |        ✔️         |
+| Primeton V6.5       |   ✔️   |               |    ✔️    |                 |  ✔️   |              |        ✔️        |        ✔️         |
+
+<figcaption align="center">表 5：GlassFish 各版本内存马挂载类型参考表</figcaption>
+</figure>
+</div>
+
+<style>{`
+  .glassfish-version-table table th:first-child,
+  .glassfish-version-table table td:first-child {
+    min-width: 160px;
+  }
+`}</style>
+
+## Payara
+
+> 官网：https://www.payara.fish/downloads/
+
+基于 GlassFish 开发，服务类型选择 [GlassFish](#glassfish) 进行内存马的生成。
+
+## Resin
+
+> 官网：https://caucho.com/products/resin/download
+
+Resin 使用的包名为 `com.caucho.`，泛微 OA 使用的就是 Resin，服务类型选择 Resin 进行内存马的生成。
+
+<figure>
+
+| Version   | Filter | Listener | AgentFilterChain |
+| --------- | :----: | :------: | :--------------: |
+| Resin 3.x |   ✔️   |    ✔️    |        ✔️        |
+| Resin 4.x |   ✔️   |    ✔️    |        ✔️        |
+
+<figcaption align="center">表 6：Resin 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## WebLogic
+
+> 官网：https://www.oracle.com/middleware/technologies/weblogic-server-installers-downloads.html
+
+WebLogic 使用的包名为 `weblogic.`，服务类型选择 WebLogic 进行内存马的生成。
+
+<figure>
+
+| Version         | Filter | Listener | AgentServletContext |
+| --------------- | :----: | :------: | :-----------------: |
+| WebLogic 10.3.6 |   ✔️   |    ✔️    |         ✔️          |
+| WebLogic 12.x   |   ✔️   |    ✔️    |         ✔️          |
+| WebLogic 14.x   |   ✔️   |    ✔️    |         ✔️          |
+
+<figcaption align="center">表 7：WebLogic 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## WebSphere
+
+> 官网：https://www.ibm.com/products/websphere-application-server
+
+WebSphere 是 IBM 研发的商用 Servlets 容器，开源版本为 Websphere liberty，
+包名为 `com.ibm.`，服务类型选择 WebSphere 进行内存马的生成。
+
+<figure>
+
+| Version       | Filter | Listener |           AgentFilterManager           |
+| ------------- | :----: | :------: | :------------------------------------: |
+| WebSphere 7.x |   ✔️   |    ✔️    | ✔️（需要开启 debug 模式才允许 attach） |
+| WebSphere 8.x |   ✔️   |    ✔️    |                   ✔️                   |
+| WebSphere 9.x |   ✔️   |    ✔️    |                   ✔️                   |
+
+<figcaption align="center">表 8：WebSphere 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## BES
+
+> 官网：https://www.bessystem.com/
+
+BES 宝兰德，其基于 Tomcat 进行二开，在 BES 9.5.1 版本中没有进行包名修改，而在 BES 9.5.2
+版本之后包名修改为了 `com.bes.enterprise.`。因此 BES 9.5.1 版本，服务类型选择 Tomcat 进行内存马的生成，BES 9.5.2+ 服务类型选择
+BES 进行内存马的生成。
+
+<figure>
+
+| Version   | Filter | Listener | Valve | AgentFilterChain | AgentContextValve |
+| --------- | :----: | :------: | :---: | :--------------: | :---------------: |
+| BES 9.5.2 |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+| BES 9.5.5 |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+
+<figcaption align="center">表 9：BES 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## TongWeb
+
+> 官网：https://www.tongtech.com/sy.html
+
+TongWeb 东方通，其基于 Tomcat 进行二开，并且在最初的 6 版本就进行了包名修改，每个版本都进行了修改。
+
+- TongWeb6: `com.tongweb.web.thor.`
+- TongWeb7: `com.tongweb.catalina.`
+- TongWeb8: `com.tongweb.server.`
+
+这三个版本在 MemShellParty 中均有适配，服务类型选择 TongWeb 进行内存马的生成。
+
+<figure>
+
+| Version     | Filter | Listener | Valve | AgentFilterChain | AgentContextValve |
+| ----------- | :----: | :------: | :---: | :--------------: | :---------------: |
+| TongWeb 6.x |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+| TongWeb 7.x |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+| TongWeb 8.x |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+
+<figcaption align="center">表 10：TongWeb 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## Apusic
+
+> 官网：https://www.apusic.com/
+
+金蝶中间件，Apusic9 疑似魔改自 GlassFish，不过改得面目全非了，自 Apusic10 开始使用原版 GlassFish 进行二开。因此 Apusic9
+版本服务类型选择
+Apusic 进行内存马生成，Apusic10 版本选择 [GlassFish](#glassfish) 进行内存马生成。
+
+<figure>
+
+| Version      | Filter | Listener | AgentFilterChain |
+| ------------ | :----: | :------: | :--------------: |
+| Apusic 9.0   |   ✔️   |    ✔️    |        ✔️        |
+| Apusic 9.0.1 |   ✔️   |    ✔️    |        ✔️        |
+
+<figcaption align="center">表 11：Apusic 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## Primeton
+
+> 官网：https://www.primeton.com/products/pas/
+
+普元中间件，Primeton6.5 版本基于 GlassFish
+二开，高版本疑似做了包名修改，但没有环境，因此暂未适配（[#60](https://github.com/ReaJason/MemShellParty/issues/60)）因此当前仅支持
+Primeton6.5 版本，服务类型选择 [GlassFish](#glassfish) 进行内存马生成。
+
+## InforSuite
+
+中创中间件，InforSuite 基于 GlassFish 进行二开，不过因为 InforSuite10 版本针对 filterConfigs 字段做了手脚改成了
+iasFilterConfigs 因此 Filter 注入单独进行了适配。服务类型选择 InforSuite 进行内存马注入。
+
+<figure>
+
+| Version       | Filter | Listener | Valve | AgentFilterChain | AgentContextValve |
+| ------------- | :----: | :------: | :---: | :--------------: | :---------------: |
+| InforSuite 9  |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+| InforSuite 10 |   ✔️   |    ✔️    |  ✔️   |        ✔️        |        ✔️         |
+
+<figcaption align="center">表 12：InforSuite 各版本内存马挂载类型参考表</figcaption>
+</figure>
+
+## SpringWebMVC
+
+Spring 框架，默认的 MVC 架构，官方 Servlets 容器实现可选 Tomcat、Jetty 与 Undertow，也可打包成 war 包部署于任意 Servlets
+容器上。内存马注入场景下不推荐框架内存马，而是具体的 Servlets 容器内存马，因为可绕过框架的限制（鉴权或其他）。服务类型选择
+SpringWebMVC 进行内存马生成。
+
+<div className="springwebmvc-version-table">
+<figure>
+
+| Version                | Interceptor | JakartaInterceptor | ControllerHandler | JakartaControllerHandler | AgentFrameworkServlet |
+| ---------------------- | :---------: | :----------------: | :---------------: | :----------------------: | :-------------------: |
+| SpringWebMVC 3.x ~ 5.x |     ✔️      |                    |        ✔️         |                          |          ✔️           |
+| Spring Boot 1.x/2.x    |     ✔️      |                    |        ✔️         |                          |          ✔️           |
+| SpringWebMVC 6.x       |             |         ✔️         |                   |            ✔️            |          ✔️           |
+| Spring Boot 3.x        |             |         ✔️         |                   |            ✔️            |          ✔️           |
+
+<figcaption align="center">表 13：SpringWebMVC 各版本内存马挂载类型参考表</figcaption>
+</figure>
+</div>
+
+<style>{`
+  .springwebmvc-version-table table th:first-child,
+  .springwebmvc-version-table table td:first-child {
+    min-width: 200px;
+  }
+`}</style>
+
+## SpringWebFlux
+
+Spring Boot 项目中基于 reactor 异步 IO 模型的服务组件，底层使用的 Netty，一般常见于各种 SpringCloud 项目，例如网关。服务类型选择
+SpringWebFlux 进行内存马生成。
+
+## XXL-JOB
+
+> 官网：https://www.xuxueli.com/xxl-job/
+
+XXL-JOB 是一个分布式任务调度平台，由于 executor 出现过反序列化漏洞，并且弱密码情况下可在 admin 前台下发任务，在 executor 执行任意代码，因此在 MemShellParty 中也提供了 XXL-JOB 内存马的生成，服务类型选择 XXL-JOB 进行内存马生成。
+executor 仅支持 Netty Handler 内存马注入。
+
+## Dubbo
+
+> 官网：https://dubbo.apache.org/en/
+
+Dubbo 分为低版本 2.6x Alibaba Dubbo，包名为 `com.alibaba.dubbo.`，后来合并到 Apache 改为了 Apache Dubbo 2.7x 版本和 3.x 版本，包名为 `org.apache.dubbo.`，当前 Dubbo 内存马只针对 Dubbo Provider，对于 Dubbo Consumer 来说直接打对应的内存马即可比如 Spring 框架马。
